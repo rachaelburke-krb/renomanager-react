@@ -15,6 +15,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import Profile from "./pages/Profile";
 import { UserProvider } from "./contexts/UserContext";
+import { SupplierProvider } from "./contexts/SupplierContext";
+import Suppliers from "./pages/Suppliers";
 
 // Protected Route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
@@ -34,44 +36,47 @@ const App: React.FC = () => {
 
   return (
     <UserProvider>
-      <ProjectProvider>
-        <Router>
-          <Routes>
-            <Route
-              path="/login"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Login />
-                )
-              }
-            />
-            <Route
-              path="/*"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Routes>
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/projects/new" element={<NewProject />} />
-                      <Route
-                        path="/projects/:id"
-                        element={<ProjectDetails />}
-                      />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route
-                        path="/"
-                        element={<Navigate to="/dashboard" replace />}
-                      />
-                    </Routes>
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </Router>
-      </ProjectProvider>
+      <SupplierProvider>
+        <ProjectProvider>
+          <Router>
+            <Routes>
+              <Route
+                path="/login"
+                element={
+                  isAuthenticated ? (
+                    <Navigate to="/dashboard" replace />
+                  ) : (
+                    <Login />
+                  )
+                }
+              />
+              <Route
+                path="/*"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Routes>
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/projects/new" element={<NewProject />} />
+                        <Route
+                          path="/projects/:id"
+                          element={<ProjectDetails />}
+                        />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route
+                          path="/"
+                          element={<Navigate to="/dashboard" replace />}
+                        />
+                        <Route path="/suppliers" element={<Suppliers />} />
+                      </Routes>
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </Router>
+        </ProjectProvider>
+      </SupplierProvider>
     </UserProvider>
   );
 };

@@ -18,6 +18,7 @@ export interface Project {
       lng: number;
     };
   };
+  owner: User;
   sharedWith: string[];
   status: "planning" | "in-progress" | "completed";
   phases: Phase[];
@@ -69,6 +70,7 @@ export interface User {
   name: string;
   password: string;
   role: "admin" | "user";
+  profileImage?: string;
   language?: string;
   timezone?: string;
   emailNotifications?: boolean;

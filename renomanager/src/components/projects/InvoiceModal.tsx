@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import { Invoice, Supplier } from "../../types";
 import DatePickerInput from "../shared/DatePickerInput";
-import { mockSuppliers } from "../../data/mockSuppliers";
+import { useSuppliers } from "../../contexts/SupplierContext";
 
 interface InvoiceModalProps {
   show: boolean;
@@ -19,12 +19,14 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
   invoice,
   isEditing = false,
 }) => {
+  const { suppliers, addSupplier } = useSuppliers();
   const [formData, setFormData] = useState({
     invoiceNumber: invoice?.invoiceNumber || "",
     amount: invoice?.amount || "",
     dueDate: invoice?.dueDate ? new Date(invoice.dueDate) : null,
     status: invoice?.status || "draft",
-    supplier: invoice?.supplier || null,
+    selectedSupplierId:
+      suppliers.find((s) => s.name === invoice?.supplier.name)?.id || "",
   });
 
   const [showNewSupplier, setShowNewSupplier] = useState(false);
@@ -38,17 +40,37 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const supplierData = showNewSupplier
-      ? {
-          name: newSupplier.name || "",
-          email: newSupplier.email || "",
-          phone: newSupplier.phone,
-        }
-      : formData.supplier || {
-          name: mockSuppliers[0].name,
-          email: mockSuppliers[0].email,
-          phone: mockSuppliers[0].phone,
-        };
+    let supplierData;
+    if (showNewSupplier) {
+      const newSupplierData: Supplier = {
+        id: Date.now().toString(),
+        name: newSupplier.name || "",
+        email: newSupplier.email || "",
+        phone: newSupplier.phone,
+        category: newSupplier.category,
+      };
+
+      addSupplier(newSupplierData);
+
+      supplierData = {
+        name: newSupplierData.name,
+        email: newSupplierData.email,
+        phone: newSupplierData.phone,
+      };
+    } else {
+      const selectedSupplier = suppliers.find(
+        (s) => s.id === formData.selectedSupplierId
+      );
+      if (!selectedSupplier) {
+        return;
+      }
+
+      supplierData = {
+        name: selectedSupplier.name,
+        email: selectedSupplier.email,
+        phone: selectedSupplier.phone,
+      };
+    }
 
     onSave({
       invoiceNumber: formData.invoiceNumber,
@@ -57,6 +79,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
       status: formData.status as Invoice["status"],
       supplier: supplierData,
     });
+
     onHide();
   };
 
@@ -153,30 +176,17 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
             {!showNewSupplier ? (
               <Form.Group>
                 <Form.Select
-                  value={
-                    mockSuppliers.find(
-                      (s) => s.name === formData.supplier?.name
-                    )?.id || ""
-                  }
+                  value={formData.selectedSupplierId}
                   onChange={(e) => {
-                    const supplier = mockSuppliers.find(
-                      (s) => s.id === e.target.value
-                    );
-                    if (supplier) {
-                      setFormData({
-                        ...formData,
-                        supplier: {
-                          name: supplier.name,
-                          email: supplier.email,
-                          phone: supplier.phone,
-                        },
-                      });
-                    }
+                    setFormData({
+                      ...formData,
+                      selectedSupplierId: e.target.value,
+                    });
                   }}
                   required
                 >
                   <option value="">Select a supplier...</option>
-                  {mockSuppliers.map((supplier) => (
+                  {suppliers.map((supplier) => (
                     <option key={supplier.id} value={supplier.id}>
                       {supplier.name} ({supplier.category})
                     </option>

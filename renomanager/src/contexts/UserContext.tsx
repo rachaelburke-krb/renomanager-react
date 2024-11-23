@@ -4,9 +4,8 @@ import { mockUsers } from "../data/mockUsers";
 
 interface UserContextType {
   currentUser: User | null;
-  updateUser: (updates: Partial<User>) => void;
-  deleteAccount: () => void;
-  updatePassword: (currentPassword: string, newPassword: string) => boolean;
+  updateUser: (user: User) => void;
+  updateProfileImage: (imageUrl: string) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -15,46 +14,33 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    const userId = localStorage.getItem("userId");
-    return mockUsers.find((u) => u.id === userId) || null;
+    const savedUser = localStorage.getItem("currentUser");
+    if (savedUser) {
+      return JSON.parse(savedUser);
+    }
+    return mockUsers[0]; // Default to first mock user
   });
 
-  const updateUser = (updates: Partial<User>) => {
-    if (!currentUser) return;
-
-    const updatedUser = { ...currentUser, ...updates };
-    setCurrentUser(updatedUser);
-    // TODO: Implement API call to update user
+  const updateUser = (user: User) => {
+    setCurrentUser(user);
+    localStorage.setItem("currentUser", JSON.stringify(user));
   };
 
-  const deleteAccount = () => {
-    // TODO: Implement API call to delete account
-    setCurrentUser(null);
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userName");
-    window.location.href = "/login";
-  };
-
-  const updatePassword = (
-    currentPassword: string,
-    newPassword: string
-  ): boolean => {
-    if (!currentUser) return false;
-
-    // Check if current password matches
-    if (currentPassword === currentUser.password) {
-      // TODO: Implement API call to update password
-      setCurrentUser({ ...currentUser, password: newPassword });
-      return true;
+  const updateProfileImage = (imageUrl: string) => {
+    if (currentUser) {
+      const updatedUser = {
+        ...currentUser,
+        profileImage: imageUrl,
+      };
+      setCurrentUser(updatedUser);
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+      localStorage.setItem("profileImage", imageUrl); // Keep for backward compatibility
     }
-    return false;
   };
 
   return (
     <UserContext.Provider
-      value={{ currentUser, updateUser, deleteAccount, updatePassword }}
+      value={{ currentUser, updateUser, updateProfileImage }}
     >
       {children}
     </UserContext.Provider>

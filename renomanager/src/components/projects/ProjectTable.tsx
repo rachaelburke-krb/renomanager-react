@@ -90,6 +90,7 @@ const ProjectTable: React.FC<ProjectTableProps> = ({ projects }) => {
           <th onClick={() => handleSort("title")} style={{ cursor: "pointer" }}>
             Project {getSortIcon("title")}
           </th>
+          <th>Owner</th>
           <th
             onClick={() => handleSort("startDate")}
             style={{ cursor: "pointer" }}
@@ -126,6 +127,38 @@ const ProjectTable: React.FC<ProjectTableProps> = ({ projects }) => {
             <td>
               <div className="fw-medium">{project.title}</div>
               <small className="text-muted">{project.location.address}</small>
+            </td>
+            <td>
+              <div className="d-flex align-items-center">
+                <div
+                  className="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2"
+                  style={{ width: "32px", height: "32px" }}
+                >
+                  {project.owner.profileImage ? (
+                    <img
+                      src={project.owner.profileImage}
+                      alt={project.owner.name}
+                      className="rounded-circle"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <span className="text-white">
+                      {project.owner.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <div className="fw-medium">{project.owner.name}</div>
+                  <small className="text-muted">{project.owner.email}</small>
+                </div>
+              </div>
             </td>
             <td>{format(new Date(project.startDate), "MMM d, yyyy")}</td>
             <td>{format(new Date(project.endDate), "MMM d, yyyy")}</td>

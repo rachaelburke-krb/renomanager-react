@@ -1,8 +1,7 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  margin: 0;
+  padding: 0;
+  text-align: left;
 }
 
 .logo {
@@ -34,7 +33,9 @@
 }
 
 .card {
-  padding: 2em;
+  margin-bottom: 1.5rem;
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
 .read-the-docs {
@@ -53,22 +54,47 @@
 }
 
 .sidebar {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 100;
-  padding: 48px 0 0;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
 }
 
 .sidebar .nav-link {
   font-weight: 500;
   color: #333;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  margin: 0.2rem 0;
+}
+
+.sidebar .nav-link:hover {
+  background-color: rgba(13, 110, 253, 0.1);
 }
 
 .sidebar .nav-link.active {
   color: #2470dc;
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.sidebar .nav-link i {
+  color: #727272;
+}
+
+.sidebar .nav-link:hover i,
+.sidebar .nav-link.active i {
+  color: #2470dc;
+}
+
+.sidebar hr {
+  margin: 1rem 0;
+}
+
+.sidebar .dropdown {
+  padding: 0.5rem 1rem;
+}
+
+.sidebar .dropdown a:hover {
+  background-color: rgba(13, 110, 253, 0.1);
+  border-radius: 0.5rem;
 }
 
 .sidebar-heading {
@@ -78,8 +104,11 @@
 
 /* Add margin to main content to account for sidebar */
 .main-content {
-  margin-left: 280px;
-  padding: 2rem;
+  margin-left: 250px;
+  min-height: 100vh;
+  width: calc(100% - 250px);
+  padding: 1.5rem;
+  background-color: #f8f9fa;
 }
 
 /* Bootstrap overrides */
@@ -150,4 +179,84 @@
 
 .bootstrap-datepicker .react-datepicker__navigation {
   top: 0.75rem;
+}
+
+/* Profile Dropdown Styles */
+.sidebar .dropdown-menu {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.sidebar .dropdown-item {
+  padding: 0.5rem 1rem;
+  color: #333;
+}
+
+.sidebar .dropdown-item:hover {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #2470dc;
+}
+
+.sidebar .dropdown-item:hover i {
+  color: #2470dc;
+}
+
+.sidebar .dropdown-item i {
+  color: #727272;
+}
+
+.sidebar .dropdown-divider {
+  margin: 0.5rem 0;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Profile styles */
+.sidebar .dropdown-toggle.active {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.sidebar .dropdown-toggle:hover {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.sidebar .dropdown-toggle .rounded-circle {
+  transition: transform 0.2s;
+}
+
+.sidebar .dropdown-toggle:hover .rounded-circle {
+  transform: scale(1.05);
+}
+
+.table-responsive {
+  margin-bottom: 0;
+}
+
+/* Profile Image Styles */
+.profile-image-container {
+  transition: all 0.2s ease-in-out;
+}
+
+.profile-image-container .profile-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.profile-image-container:hover .profile-image-overlay {
+  opacity: 1;
+}
+
+.profile-image-container:hover {
+  transform: scale(1.05);
 }

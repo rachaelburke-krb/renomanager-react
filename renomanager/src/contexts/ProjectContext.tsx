@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { Project } from "../types";
 import { mockProjects } from "../data/mockProjects";
+import { mockUsers } from "../data/mockUsers";
 
 interface ProjectContextType {
   projects: Project[];
@@ -23,6 +24,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({
         ...project,
         startDate: new Date(project.startDate),
         endDate: new Date(project.endDate),
+        owner: project.owner || mockUsers[0],
         phases: project.phases.map((phase: any) => ({
           ...phase,
           startDate: new Date(phase.startDate),
@@ -33,14 +35,17 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({
     return mockProjects;
   });
 
-  // Helper function to save to both localStorage and mockProjects
   const saveProjects = (updatedProjects: Project[]) => {
-    setProjects(updatedProjects);
-    localStorage.setItem("projects", JSON.stringify(updatedProjects));
+    const projectsWithOwners = updatedProjects.map((project) => ({
+      ...project,
+      owner: project.owner || mockUsers[0],
+    }));
 
-    // Update mockProjects array
-    mockProjects.length = 0; // Clear the array
-    mockProjects.push(...updatedProjects); // Add all updated projects
+    setProjects(projectsWithOwners);
+    localStorage.setItem("projects", JSON.stringify(projectsWithOwners));
+
+    mockProjects.length = 0;
+    mockProjects.push(...projectsWithOwners);
   };
 
   const addProject = (project: Project) => {

@@ -19,6 +19,9 @@ import InvoiceModal from "../components/projects/InvoiceModal";
 import PhotoGallery from "../components/projects/PhotoGallery";
 import { useProjects } from "../contexts/ProjectContext";
 import { mockSuppliers } from "../data/mockSuppliers";
+import ShareProjectModal from "../components/projects/ShareProjectModal";
+import { mockUsers } from "../data/mockUsers";
+import { User } from "../types";
 
 // Helper function to calculate invoice summaries
 const calculateInvoiceSummary = (invoices: Invoice[]): InvoiceSummary => {
@@ -73,6 +76,7 @@ const ProjectDetails: React.FC = () => {
     taskId: string;
     phaseId: string;
   } | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   if (!project) {
     return <div>Project not found</div>;
@@ -410,6 +414,25 @@ const ProjectDetails: React.FC = () => {
 
   const supplierSummaries = calculateSupplierSummaries();
 
+  const handleShare = (userIds: string[]) => {
+    setProject((prev) => {
+      if (!prev) return prev;
+      const updatedProject = {
+        ...prev,
+        sharedWith: userIds,
+      };
+      updateProject(updatedProject);
+      return updatedProject;
+    });
+  };
+
+  // Add this helper function to get shared users
+  const getSharedUsers = (): User[] => {
+    return project.sharedWith
+      .map((userId) => mockUsers.find((u: User) => u.id === userId))
+      .filter((user): user is User => user !== undefined);
+  };
+
   return (
     <div className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -420,6 +443,14 @@ const ProjectDetails: React.FC = () => {
           </Badge>
         </div>
         <div>
+          <Button
+            variant="outline-primary"
+            className="me-2"
+            onClick={() => setShowShareModal(true)}
+          >
+            <i className="bi bi-share me-2"></i>
+            Share
+          </Button>
           <div
             role="button"
             className="text-primary me-2 d-inline-block"
@@ -438,6 +469,14 @@ const ProjectDetails: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ShareProjectModal
+        show={showShareModal}
+        onHide={() => setShowShareModal(false)}
+        onShare={handleShare}
+        currentSharedWith={project.sharedWith}
+        owner={project.owner}
+      />
 
       <Card className="mb-4">
         <Card.Body>
@@ -463,6 +502,83 @@ const ProjectDetails: React.FC = () => {
               </div>
             </Col>
             <Col md={4} className="border-start">
+              <div className="mb-4">
+                <h5 className="text-muted mb-3">Owner</h5>
+                <div className="d-flex align-items-center mb-3">
+                  <div
+                    className="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2"
+                    style={{ width: "32px", height: "32px" }}
+                  >
+                    {project.owner.profileImage ? (
+                      <img
+                        src={project.owner.profileImage}
+                        alt={project.owner.name}
+                        className="rounded-circle"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <span className="text-white">
+                        {project.owner.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <div className="fw-medium">{project.owner.name}</div>
+                    <small className="text-muted">{project.owner.email}</small>
+                  </div>
+                </div>
+              </div>
+
+              {/* Add Shared With section */}
+              <div className="mb-4">
+                <h5 className="text-muted mb-3">Shared With</h5>
+                {getSharedUsers().length > 0 ? (
+                  <div className="d-flex flex-column gap-2">
+                    {getSharedUsers().map((user) => (
+                      <div key={user.id} className="d-flex align-items-center">
+                        <div
+                          className="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2"
+                          style={{ width: "32px", height: "32px" }}
+                        >
+                          {user.profileImage ? (
+                            <img
+                              src={user.profileImage}
+                              alt={user.name}
+                              className="rounded-circle"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : (
+                            <span className="text-white">
+                              {user.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="fw-medium">{user.name}</div>
+                          <small className="text-muted">{user.email}</small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted mb-0">No users shared with yet</p>
+                )}
+              </div>
+
               <div className="mb-4">
                 <h5 className="text-muted mb-3">Timeline</h5>
                 <div className="d-flex align-items-center mb-2">

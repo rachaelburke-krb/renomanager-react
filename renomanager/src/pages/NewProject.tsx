@@ -13,10 +13,12 @@ import { format } from "date-fns";
 import DatePickerInput from "../components/shared/DatePickerInput";
 import { Project } from "../types";
 import { useProjects } from "../contexts/ProjectContext";
+import { useUser } from "../contexts/UserContext";
 
 const NewProject: React.FC = () => {
   const navigate = useNavigate();
   const { addProject } = useProjects();
+  const { currentUser } = useUser();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -62,6 +64,10 @@ const NewProject: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!currentUser) {
+      return;
+    }
+
     if (!formData.startDate || !formData.endDate) {
       setDateError("Both start and end dates are required");
       return;
@@ -77,6 +83,7 @@ const NewProject: React.FC = () => {
       startDate: formData.startDate,
       endDate: formData.endDate,
       status: "planning",
+      owner: currentUser,
       sharedWith: [],
       phases: [],
       photos: [],
