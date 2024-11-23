@@ -23,8 +23,11 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  const currentUser = localStorage.getItem("currentUser");
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !currentUser) {
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("currentUser");
     return <Navigate to="/login" replace />;
   }
 
@@ -33,6 +36,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 
 const App: React.FC = () => {
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  const currentUser = localStorage.getItem("currentUser");
 
   return (
     <UserProvider>
@@ -43,7 +47,7 @@ const App: React.FC = () => {
               <Route
                 path="/login"
                 element={
-                  isAuthenticated ? (
+                  isAuthenticated && currentUser ? (
                     <Navigate to="/dashboard" replace />
                   ) : (
                     <Login />

@@ -2,30 +2,25 @@ import React, { useState } from "react";
 import { Nav, Dropdown } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import FileUpload from "../shared/FileUpload";
+import { useUser } from "../../contexts/UserContext";
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
-  const [profileImage, setProfileImage] = useState<string | null>(
-    localStorage.getItem("profileImage")
-  );
+  const { currentUser, updateProfileImage } = useUser();
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("currentUser");
     navigate("/login");
   };
-
-  // Get user initials for avatar fallback
-  const userInitials = "JD"; // This should come from your user context
-  const userEmail = "john@example.com"; // This should come from your user context
 
   const handleProfileImageUpload = (file: File) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
-      setProfileImage(base64String);
-      localStorage.setItem("profileImage", base64String);
+      updateProfileImage(base64String);
     };
     reader.readAsDataURL(file);
   };
@@ -108,9 +103,11 @@ const Sidebar: React.FC = () => {
                   style={{
                     width: "38px",
                     height: "38px",
-                    backgroundImage: profileImage
-                      ? `url(${profileImage})`
-                      : `url('https://ui-avatars.com/api/?name=${userInitials}&background=0D6EFD&color=fff')`,
+                    backgroundImage: currentUser?.profileImage
+                      ? `url(${currentUser.profileImage})`
+                      : `url('https://ui-avatars.com/api/?name=${
+                          currentUser?.name || "User"
+                        }&background=0D6EFD&color=fff')`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                   }}
@@ -121,8 +118,8 @@ const Sidebar: React.FC = () => {
                 </div>
               </FileUpload>
               <div className="flex-grow-1">
-                <div className="fw-semibold">{userInitials}</div>
-                <small className="text-muted">{userEmail}</small>
+                <div className="fw-semibold">{currentUser?.name || "User"}</div>
+                <small className="text-muted">{currentUser?.email}</small>
               </div>
               <i
                 className={`bi bi-chevron-${showDropdown ? "up" : "down"} ms-2`}
