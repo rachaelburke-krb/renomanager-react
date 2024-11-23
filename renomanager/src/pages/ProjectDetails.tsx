@@ -16,6 +16,7 @@ import DeleteProjectModal from "../components/projects/DeleteProjectModal";
 import PhaseModal from "../components/projects/PhaseModal";
 import TaskModal from "../components/projects/TaskModal";
 import InvoiceModal from "../components/projects/InvoiceModal";
+import PhotoGallery from "../components/projects/PhotoGallery";
 
 // Helper function to calculate invoice summaries
 const calculateInvoiceSummary = (invoices: Invoice[]): InvoiceSummary => {
@@ -415,6 +416,45 @@ const ProjectDetails: React.FC = () => {
     });
   };
 
+  const handlePhotoUpload = (files: FileList) => {
+    // TODO: Implement actual file upload
+    const newPhotos = Array.from(files).map((file) => ({
+      id: Date.now().toString(),
+      url: URL.createObjectURL(file),
+      uploadedAt: new Date(),
+    }));
+
+    setProject((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        photos: [...(prev.photos || []), ...newPhotos],
+      };
+    });
+  };
+
+  const handleDeletePhoto = (photoId: string) => {
+    setProject((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        photos: prev.photos.filter((photo) => photo.id !== photoId),
+      };
+    });
+  };
+
+  const handleUpdatePhotoCaption = (photoId: string, caption: string) => {
+    setProject((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        photos: prev.photos.map((photo) =>
+          photo.id === photoId ? { ...photo, caption } : photo
+        ),
+      };
+    });
+  };
+
   return (
     <Container className="py-5">
       {/* Header Section */}
@@ -513,6 +553,18 @@ const ProjectDetails: React.FC = () => {
               </div>
             </div>
           </div>
+        </Col>
+      </Row>
+
+      {/* Photo Gallery */}
+      <Row className="mb-4">
+        <Col xs={12}>
+          <PhotoGallery
+            photos={project.photos || []}
+            onUpload={handlePhotoUpload}
+            onDelete={handleDeletePhoto}
+            onUpdateCaption={handleUpdatePhotoCaption}
+          />
         </Col>
       </Row>
 
