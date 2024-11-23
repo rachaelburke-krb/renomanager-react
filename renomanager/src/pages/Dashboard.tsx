@@ -7,11 +7,13 @@ const Dashboard: React.FC = () => {
   const { projects } = useProjects();
 
   return (
-    <Container fluid className="py-4">
+    <Container fluid className="py-4 px-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">My Projects</h2>
       </div>
-      <ProjectTable projects={projects} />
+      <div className="table-responsive">
+        <ProjectTable projects={projects} />
+      </div>
     </Container>
   );
 };

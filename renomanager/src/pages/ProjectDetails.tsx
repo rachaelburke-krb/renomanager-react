@@ -7,7 +7,7 @@ import {
   Badge,
   Accordion,
   Button,
-  Container,
+  Table,
 } from "react-bootstrap";
 import { format } from "date-fns";
 import { Project, Invoice, InvoiceSummary, Phase, Task } from "../types";
@@ -18,6 +18,7 @@ import TaskModal from "../components/projects/TaskModal";
 import InvoiceModal from "../components/projects/InvoiceModal";
 import PhotoGallery from "../components/projects/PhotoGallery";
 import { useProjects } from "../contexts/ProjectContext";
+import { mockSuppliers } from "../data/mockSuppliers";
 
 // Helper function to calculate invoice summaries
 const calculateInvoiceSummary = (invoices: Invoice[]): InvoiceSummary => {
@@ -36,10 +37,19 @@ const calculateInvoiceSummary = (invoices: Invoice[]): InvoiceSummary => {
   );
 };
 
+interface SupplierSummary {
+  name: string;
+  category?: string;
+  totalAmount: number;
+  paidAmount: number;
+  unpaidAmount: number;
+  invoiceCount: number;
+}
+
 const ProjectDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getProject } = useProjects();
+  const { getProject, deleteProject, updateProject } = useProjects();
   const [project, setProject] = useState<Project | null>(
     getProject(id || "") || null
   );
@@ -106,77 +116,79 @@ const ProjectDetails: React.FC = () => {
     setShowEditModal(false);
   };
 
-  const handleDeleteProject = () => {
-    // TODO: Implement API call to delete project
-    console.log("Deleting project:", project.id);
-    // Navigate back to dashboard after deletion
-    navigate("/dashboard");
+  const handleDelete = () => {
+    if (project) {
+      deleteProject(project.id);
+      navigate("/dashboard");
+    }
   };
 
   const handleAddPhase = (newPhase: Partial<Phase>) => {
+    if (!project) return;
+
     const phase: Phase = {
-      id: Date.now().toString(), // temporary ID generation
+      id: Date.now().toString(),
       ...newPhase,
       tasks: [],
     } as Phase;
 
-    // Update project with new phase
-    setProject((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        phases: [...prev.phases, phase],
-      };
-    });
+    const updatedProject = {
+      ...project,
+      phases: [...project.phases, phase],
+    };
 
+    setProject(updatedProject);
+    updateProject(updatedProject);
     setShowPhaseModal(false);
   };
 
   const handleEditPhase = (updatedPhase: Partial<Phase>) => {
-    if (!editingPhase) return;
+    if (!project || !editingPhase) return;
 
-    setProject((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        phases: prev.phases.map((phase) =>
-          phase.id === editingPhase.id ? { ...phase, ...updatedPhase } : phase
-        ),
-      };
-    });
+    const updatedProject = {
+      ...project,
+      phases: project.phases.map((phase) =>
+        phase.id === editingPhase.id ? { ...phase, ...updatedPhase } : phase
+      ),
+    };
 
+    setProject(updatedProject);
+    updateProject(updatedProject);
     setEditingPhase(null);
   };
 
   const handleDeletePhase = (phaseId: string) => {
-    setProject((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        phases: prev.phases.filter((phase) => phase.id !== phaseId),
-      };
-    });
+    if (!project) return;
+
+    const updatedProject = {
+      ...project,
+      phases: project.phases.filter((phase) => phase.id !== phaseId),
+    };
+
+    setProject(updatedProject);
+    updateProject(updatedProject);
   };
 
   const handleAddTask = (phaseId: string, newTask: Partial<Task>) => {
+    if (!project) return;
+
     const task: Task = {
       id: Date.now().toString(),
       ...newTask,
       invoices: [],
     } as Task;
 
-    setProject((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        phases: prev.phases.map((phase) =>
-          phase.id === phaseId
-            ? { ...phase, tasks: [...phase.tasks, task] }
-            : phase
-        ),
-      };
-    });
+    const updatedProject = {
+      ...project,
+      phases: project.phases.map((phase) =>
+        phase.id === phaseId
+          ? { ...phase, tasks: [...phase.tasks, task] }
+          : phase
+      ),
+    };
 
+    setProject(updatedProject);
+    updateProject(updatedProject);
     setShowTaskModal(false);
     setActivePhaseId(null);
   };
@@ -360,6 +372,44 @@ const ProjectDetails: React.FC = () => {
     });
   };
 
+  // Add this function to calculate supplier summaries
+  const calculateSupplierSummaries = (): SupplierSummary[] => {
+    const supplierMap = new Map<string, SupplierSummary>();
+
+    project.phases.forEach((phase) => {
+      phase.tasks.forEach((task) => {
+        task.invoices.forEach((invoice) => {
+          const supplierName = invoice.supplier.name;
+          const existing = supplierMap.get(supplierName) || {
+            name: supplierName,
+            category: mockSuppliers.find((s) => s.name === supplierName)
+              ?.category,
+            totalAmount: 0,
+            paidAmount: 0,
+            unpaidAmount: 0,
+            invoiceCount: 0,
+          };
+
+          existing.totalAmount += invoice.amount;
+          if (invoice.status === "paid") {
+            existing.paidAmount += invoice.amount;
+          } else {
+            existing.unpaidAmount += invoice.amount;
+          }
+          existing.invoiceCount++;
+
+          supplierMap.set(supplierName, existing);
+        });
+      });
+    });
+
+    return Array.from(supplierMap.values()).sort(
+      (a, b) => b.totalAmount - a.totalAmount
+    );
+  };
+
+  const supplierSummaries = calculateSupplierSummaries();
+
   return (
     <div className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -370,20 +420,22 @@ const ProjectDetails: React.FC = () => {
           </Badge>
         </div>
         <div>
-          <Button
-            variant="link"
-            className="text-primary me-2"
+          <div
+            role="button"
+            className="text-primary me-2 d-inline-block"
             onClick={() => setShowEditModal(true)}
+            style={{ cursor: "pointer" }}
           >
             <i className="bi bi-pencil-square fs-5"></i>
-          </Button>
-          <Button
-            variant="link"
-            className="text-danger"
+          </div>
+          <div
+            role="button"
+            className="text-danger d-inline-block"
             onClick={() => setShowDeleteModal(true)}
+            style={{ cursor: "pointer" }}
           >
             <i className="bi bi-trash fs-5"></i>
-          </Button>
+          </div>
         </div>
       </div>
 
@@ -510,19 +562,20 @@ const ProjectDetails: React.FC = () => {
                       </small>
                     </div>
                     <div>
-                      <Button
-                        variant="link"
-                        className="text-primary p-0 me-3"
+                      <div
+                        role="button"
+                        className="text-primary p-0 me-3 d-inline-block"
                         onClick={(e) => {
                           e.stopPropagation();
                           setEditingPhase(phase);
                         }}
+                        style={{ cursor: "pointer" }}
                       >
                         <i className="bi bi-pencil"></i>
-                      </Button>
-                      <Button
-                        variant="link"
-                        className="text-danger p-0"
+                      </div>
+                      <div
+                        role="button"
+                        className="text-danger p-0 d-inline-block"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (
@@ -533,9 +586,10 @@ const ProjectDetails: React.FC = () => {
                             handleDeletePhase(phase.id);
                           }
                         }}
+                        style={{ cursor: "pointer" }}
                       >
                         <i className="bi bi-trash"></i>
-                      </Button>
+                      </div>
                     </div>
                   </div>
                 </Accordion.Header>
@@ -720,8 +774,8 @@ const ProjectDetails: React.FC = () => {
       <DeleteProjectModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}
-        onConfirm={handleDeleteProject}
-        projectTitle={project.title}
+        onConfirm={handleDelete}
+        projectTitle={project?.title || ""}
       />
 
       <PhaseModal
@@ -793,6 +847,79 @@ const ProjectDetails: React.FC = () => {
           isEditing
         />
       )}
+
+      {/* Add this after the Phases section */}
+      <div className="mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h3>Supplier Summary</h3>
+        </div>
+
+        <Card>
+          <Card.Body>
+            <div className="table-responsive">
+              <Table hover>
+                <thead>
+                  <tr>
+                    <th>Supplier</th>
+                    <th>Category</th>
+                    <th>Invoices</th>
+                    <th className="text-end">Total Amount</th>
+                    <th className="text-end">Paid</th>
+                    <th className="text-end">Outstanding</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {supplierSummaries.map((summary) => (
+                    <tr key={summary.name}>
+                      <td>
+                        <div className="fw-medium">{summary.name}</div>
+                      </td>
+                      <td>
+                        {summary.category && (
+                          <Badge bg="secondary" className="text-capitalize">
+                            {summary.category}
+                          </Badge>
+                        )}
+                      </td>
+                      <td>{summary.invoiceCount} invoices</td>
+                      <td className="text-end fw-medium">
+                        ${summary.totalAmount.toLocaleString()}
+                      </td>
+                      <td className="text-end text-success">
+                        ${summary.paidAmount.toLocaleString()}
+                      </td>
+                      <td className="text-end text-danger">
+                        ${summary.unpaidAmount.toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="table-light fw-bold">
+                    <td colSpan={3}>Total</td>
+                    <td className="text-end">
+                      $
+                      {supplierSummaries
+                        .reduce((sum, s) => sum + s.totalAmount, 0)
+                        .toLocaleString()}
+                    </td>
+                    <td className="text-end text-success">
+                      $
+                      {supplierSummaries
+                        .reduce((sum, s) => sum + s.paidAmount, 0)
+                        .toLocaleString()}
+                    </td>
+                    <td className="text-end text-danger">
+                      $
+                      {supplierSummaries
+                        .reduce((sum, s) => sum + s.unpaidAmount, 0)
+                        .toLocaleString()}
+                    </td>
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
+          </Card.Body>
+        </Card>
+      </div>
     </div>
   );
 };

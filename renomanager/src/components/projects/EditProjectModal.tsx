@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import { Project } from "../../types";
+import DatePickerInput from "../shared/DatePickerInput";
 
 interface EditProjectModalProps {
   show: boolean;
@@ -18,21 +19,53 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
   const [formData, setFormData] = useState({
     title: project.title,
     description: project.description,
-    startDate: project.startDate.toISOString().split("T")[0],
-    endDate: project.endDate.toISOString().split("T")[0],
+    startDate: project.startDate,
+    endDate: project.endDate,
     location: {
       address: project.location.address,
       coordinates: project.location.coordinates,
     },
   });
 
+  const [dateError, setDateError] = useState<string>("");
+
+  const validateDates = (start: Date | null, end: Date | null): boolean => {
+    if (!start || !end) return true;
+
+    if (end < start) {
+      setDateError("End date cannot be before start date");
+      return false;
+    }
+
+    setDateError("");
+    return true;
+  };
+
+  const handleDateChange = (
+    field: "startDate" | "endDate",
+    date: Date | null
+  ) => {
+    const updatedDates = {
+      ...formData,
+      [field]: date,
+    };
+
+    if (validateDates(updatedDates.startDate, updatedDates.endDate)) {
+      setFormData(updatedDates);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.startDate || !formData.endDate) {
+      setDateError("Both start and end dates are required");
+      return;
+    }
+
     onSave({
       ...project,
       ...formData,
-      startDate: new Date(formData.startDate),
-      endDate: new Date(formData.endDate),
     });
     onHide();
   };
@@ -72,27 +105,24 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Start Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={formData.startDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, startDate: e.target.value })
-                  }
+                <DatePickerInput
+                  selected={formData.startDate}
+                  onChange={(date) => handleDateChange("startDate", date)}
+                  label="Start Date"
                   required
+                  error={dateError}
                 />
               </Form.Group>
             </Col>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>End Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={formData.endDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, endDate: e.target.value })
-                  }
+                <DatePickerInput
+                  selected={formData.endDate}
+                  onChange={(date) => handleDateChange("endDate", date)}
+                  label="End Date"
+                  minDate={formData.startDate}
                   required
+                  error={dateError}
                 />
               </Form.Group>
             </Col>

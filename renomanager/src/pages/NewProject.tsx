@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import DatePickerInput from "../components/shared/DatePickerInput";
 import { Project } from "../types";
 import { useProjects } from "../contexts/ProjectContext";
 
@@ -19,8 +20,8 @@ const NewProject: React.FC = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    startDate: "",
-    endDate: "",
+    startDate: null as Date | null,
+    endDate: null as Date | null,
     location: {
       address: "",
       coordinates: {
@@ -30,14 +31,51 @@ const NewProject: React.FC = () => {
     },
   });
 
+  const [dateError, setDateError] = useState<string>("");
+
+  const validateDates = (start: Date | null, end: Date | null): boolean => {
+    if (!start || !end) return true;
+
+    if (end < start) {
+      setDateError("End date cannot be before start date");
+      return false;
+    }
+
+    setDateError("");
+    return true;
+  };
+
+  const handleDateChange = (
+    field: "startDate" | "endDate",
+    date: Date | null
+  ) => {
+    const updatedDates = {
+      ...formData,
+      [field]: date,
+    };
+
+    if (validateDates(updatedDates.startDate, updatedDates.endDate)) {
+      setFormData(updatedDates);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.startDate || !formData.endDate) {
+      setDateError("Both start and end dates are required");
+      return;
+    }
+
+    if (!validateDates(formData.startDate, formData.endDate)) {
+      return;
+    }
 
     const newProject: Project = {
       id: Date.now().toString(),
       ...formData,
-      startDate: new Date(formData.startDate),
-      endDate: new Date(formData.endDate),
+      startDate: formData.startDate,
+      endDate: formData.endDate,
       status: "planning",
       sharedWith: [],
       phases: [],
@@ -118,53 +156,31 @@ const NewProject: React.FC = () => {
                   <Card className="bg-light border-0">
                     <Card.Body>
                       <div className="mb-3">
-                        <Form.Label className="small text-muted mb-1">
-                          Start Date
-                        </Form.Label>
-                        <InputGroup>
-                          <InputGroup.Text>
-                            <i className="bi bi-calendar"></i>
-                          </InputGroup.Text>
-                          <Form.Control
-                            type="date"
-                            value={formData.startDate}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                startDate: e.target.value,
-                              })
-                            }
-                            required
-                          />
-                        </InputGroup>
+                        <DatePickerInput
+                          selected={formData.startDate}
+                          onChange={(date) =>
+                            handleDateChange("startDate", date)
+                          }
+                          label="Start Date"
+                          required
+                        />
                       </div>
 
                       <div>
-                        <Form.Label className="small text-muted mb-1">
-                          End Date
-                        </Form.Label>
-                        <InputGroup>
-                          <InputGroup.Text>
-                            <i className="bi bi-calendar"></i>
-                          </InputGroup.Text>
-                          <Form.Control
-                            type="date"
-                            value={formData.endDate}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                endDate: e.target.value,
-                              })
-                            }
-                            required
-                          />
-                        </InputGroup>
+                        <DatePickerInput
+                          selected={formData.endDate}
+                          onChange={(date) => handleDateChange("endDate", date)}
+                          label="End Date"
+                          minDate={formData.startDate || undefined}
+                          required
+                          error={dateError}
+                        />
                       </div>
 
-                      {formData.startDate && formData.endDate && (
+                      {formData.startDate && formData.endDate && !dateError && (
                         <div className="mt-3 text-center small text-muted">
-                          {format(new Date(formData.startDate), "MMM d, yyyy")}{" "}
-                          - {format(new Date(formData.endDate), "MMM d, yyyy")}
+                          {format(formData.startDate, "MMM d, yyyy")} -{" "}
+                          {format(formData.endDate, "MMM d, yyyy")}
                         </div>
                       )}
                     </Card.Body>

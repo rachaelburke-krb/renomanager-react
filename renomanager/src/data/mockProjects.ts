@@ -426,4 +426,197 @@ export const mockProjects: Project[] = [
     ],
     photos: [],
   },
+  {
+    id: "1",
+    title: "Studio & Garage",
+    description: "Convert garage into photography studio with storage",
+    startDate: new Date("2024-03-01"),
+    endDate: new Date("2024-06-30"),
+    location: {
+      address: "123 Main St, City",
+      coordinates: { lat: 40.7128, lng: -74.006 },
+    },
+    sharedWith: [],
+    status: "planning",
+    phases: [
+      {
+        id: "p1",
+        title: "Design",
+        description: "Create detailed plans and obtain client approval",
+        startDate: new Date("2024-03-01"),
+        endDate: new Date("2024-03-21"),
+        status: "planning",
+        tasks: [
+          {
+            id: "t1",
+            title: "Initial Design Concepts",
+            description: "Develop 3 initial design concepts",
+            status: "planning",
+            assignedTo: "designer",
+            invoices: [
+              {
+                id: "i1",
+                invoiceNumber: "INV-2024-001",
+                supplier: {
+                  name: "Design Studio Inc",
+                  email: "billing@designstudio.com",
+                },
+                amount: 2500,
+                dueDate: new Date("2024-03-15"),
+                status: "draft",
+              },
+            ],
+          },
+          {
+            id: "t2",
+            title: "Final Design Package",
+            description: "Complete detailed design drawings and specifications",
+            status: "planning",
+            assignedTo: "designer",
+            invoices: [],
+          },
+        ],
+      },
+      {
+        id: "p2",
+        title: "Consent",
+        description: "Obtain necessary permits and approvals",
+        startDate: new Date("2024-03-22"),
+        endDate: new Date("2024-04-15"),
+        status: "planning",
+        tasks: [
+          {
+            id: "t3",
+            title: "Building Permit Application",
+            description: "Submit and process building permit",
+            status: "planning",
+            assignedTo: "project-manager",
+            invoices: [
+              {
+                id: "i2",
+                invoiceNumber: "INV-2024-002",
+                supplier: {
+                  name: "City Planning Department",
+                  email: "permits@city.gov",
+                },
+                amount: 1200,
+                dueDate: new Date("2024-04-01"),
+                status: "draft",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: "p3",
+        title: "Build",
+        description: "Main construction phase",
+        startDate: new Date("2024-04-16"),
+        endDate: new Date("2024-06-15"),
+        status: "planning",
+        tasks: [
+          {
+            id: "t4",
+            title: "Structural Modifications",
+            description: "Modify garage structure for studio requirements",
+            status: "planning",
+            assignedTo: "contractor",
+            invoices: [
+              {
+                id: "i3",
+                invoiceNumber: "INV-2024-003",
+                supplier: {
+                  name: "Build Right Construction",
+                  email: "accounts@buildright.com",
+                },
+                amount: 15000,
+                dueDate: new Date("2024-05-01"),
+                status: "draft",
+              },
+            ],
+          },
+          {
+            id: "t5",
+            title: "Electrical Installation",
+            description: "Install new electrical system for studio equipment",
+            status: "planning",
+            assignedTo: "electrician",
+            invoices: [
+              {
+                id: "i4",
+                invoiceNumber: "INV-2024-004",
+                supplier: {
+                  name: "Power Pro Electric",
+                  email: "billing@powerpro.com",
+                },
+                amount: 8500,
+                dueDate: new Date("2024-05-15"),
+                status: "draft",
+              },
+            ],
+          },
+          {
+            id: "t6",
+            title: "Storage Solutions",
+            description: "Install custom storage systems",
+            status: "planning",
+            assignedTo: "carpenter",
+            invoices: [
+              {
+                id: "i5",
+                invoiceNumber: "INV-2024-005",
+                supplier: {
+                  name: "Custom Cabinets Co",
+                  email: "sales@customcabinets.com",
+                },
+                amount: 6500,
+                dueDate: new Date("2024-06-01"),
+                status: "draft",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: "p4",
+        title: "Finishing",
+        description: "Final touches and handover",
+        startDate: new Date("2024-06-16"),
+        endDate: new Date("2024-06-30"),
+        status: "planning",
+        tasks: [
+          {
+            id: "t7",
+            title: "Painting and Decoration",
+            description: "Complete all painting and decorative finishes",
+            status: "planning",
+            assignedTo: "painter",
+            invoices: [
+              {
+                id: "i6",
+                invoiceNumber: "INV-2024-006",
+                supplier: {
+                  name: "Perfect Paint Ltd",
+                  email: "accounts@perfectpaint.com",
+                },
+                amount: 3500,
+                dueDate: new Date("2024-06-25"),
+                status: "draft",
+              },
+            ],
+          },
+          {
+            id: "t8",
+            title: "Final Inspection",
+            description:
+              "Complete final inspection and obtain occupancy permit",
+            status: "planning",
+            assignedTo: "project-manager",
+            invoices: [],
+          },
+        ],
+      },
+    ],
+    photos: [],
+  },
 ];

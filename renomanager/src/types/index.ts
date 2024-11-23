@@ -75,3 +75,11 @@ export interface User {
   twoFactor?: boolean;
   phone?: string;
 }
+
+export interface Supplier {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  category?: string;
+}

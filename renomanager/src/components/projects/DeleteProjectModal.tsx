@@ -14,6 +14,11 @@ const DeleteProjectModal: React.FC<DeleteProjectModalProps> = ({
   onConfirm,
   projectTitle,
 }) => {
+  const handleDelete = () => {
+    onConfirm();
+    onHide();
+  };
+
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
@@ -27,7 +32,7 @@ const DeleteProjectModal: React.FC<DeleteProjectModalProps> = ({
         <Button variant="secondary" onClick={onHide}>
           Cancel
         </Button>
-        <Button variant="danger" onClick={onConfirm}>
+        <Button variant="danger" onClick={handleDelete}>
           Delete Project
         </Button>
       </Modal.Footer>
