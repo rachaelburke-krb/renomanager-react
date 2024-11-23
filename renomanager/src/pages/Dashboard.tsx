@@ -18,6 +18,7 @@ const mockProjects: Project[] = [
     sharedWith: [],
     status: "planning",
     phases: [],
+    photos: [],
   },
   {
     id: "2",
@@ -32,6 +33,7 @@ const mockProjects: Project[] = [
     sharedWith: ["user1", "user2"],
     status: "in-progress",
     phases: [],
+    photos: [],
   },
 ];
 

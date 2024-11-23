@@ -49,6 +49,32 @@ const mockProjects: Project[] = [
     },
     sharedWith: [],
     status: "planning",
+    photos: [
+      {
+        id: "p1",
+        url: "https://images.unsplash.com/photo-1556911220-bff31c812dba",
+        caption: "Before renovation - existing cabinets",
+        uploadedAt: new Date("2024-03-15"),
+      },
+      {
+        id: "p2",
+        url: "https://images.unsplash.com/photo-1556912173-3bb406ef7e77",
+        caption: "Design inspiration - modern white cabinets",
+        uploadedAt: new Date("2024-03-16"),
+      },
+      {
+        id: "p3",
+        url: "https://images.unsplash.com/photo-1556909212-d5b604d0c90d",
+        caption: "Countertop material sample",
+        uploadedAt: new Date("2024-03-17"),
+      },
+      {
+        id: "p4",
+        url: "https://images.unsplash.com/photo-1556909190-eccf4a8bf97a",
+        caption: "Lighting fixture options",
+        uploadedAt: new Date("2024-03-18"),
+      },
+    ],
     phases: [
       {
         id: "p1",
