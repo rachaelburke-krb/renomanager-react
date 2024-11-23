@@ -67,6 +67,11 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  password: string; // In a real app, this would be hashed
+  password: string;
   role: "admin" | "user";
+  language?: string;
+  timezone?: string;
+  emailNotifications?: boolean;
+  twoFactor?: boolean;
+  phone?: string;
 }

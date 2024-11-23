@@ -17,6 +17,7 @@ import PhaseModal from "../components/projects/PhaseModal";
 import TaskModal from "../components/projects/TaskModal";
 import InvoiceModal from "../components/projects/InvoiceModal";
 import PhotoGallery from "../components/projects/PhotoGallery";
+import { useProjects } from "../contexts/ProjectContext";
 
 // Helper function to calculate invoice summaries
 const calculateInvoiceSummary = (invoices: Invoice[]): InvoiceSummary => {
@@ -35,134 +36,12 @@ const calculateInvoiceSummary = (invoices: Invoice[]): InvoiceSummary => {
   );
 };
 
-// Temporary mock data - replace with actual data fetching
-const mockProjects: Project[] = [
-  {
-    id: "1",
-    title: "Kitchen Renovation",
-    description: "Complete kitchen remodel with new cabinets and appliances",
-    startDate: new Date("2024-04-01"),
-    endDate: new Date("2024-05-15"),
-    location: {
-      address: "123 Main St, City",
-      coordinates: { lat: 40.7128, lng: -74.006 },
-    },
-    sharedWith: [],
-    status: "planning",
-    photos: [
-      {
-        id: "p1",
-        url: "https://images.unsplash.com/photo-1556911220-bff31c812dba",
-        caption: "Before renovation - existing cabinets",
-        uploadedAt: new Date("2024-03-15"),
-      },
-      {
-        id: "p2",
-        url: "https://images.unsplash.com/photo-1556912173-3bb406ef7e77",
-        caption: "Design inspiration - modern white cabinets",
-        uploadedAt: new Date("2024-03-16"),
-      },
-      {
-        id: "p3",
-        url: "https://images.unsplash.com/photo-1556909212-d5b604d0c90d",
-        caption: "Countertop material sample",
-        uploadedAt: new Date("2024-03-17"),
-      },
-      {
-        id: "p4",
-        url: "https://images.unsplash.com/photo-1556909190-eccf4a8bf97a",
-        caption: "Lighting fixture options",
-        uploadedAt: new Date("2024-03-18"),
-      },
-    ],
-    phases: [
-      {
-        id: "p1",
-        title: "Demo",
-        description: "Remove existing cabinets and appliances",
-        startDate: new Date("2024-04-01"),
-        endDate: new Date("2024-04-07"),
-        status: "planning",
-        tasks: [
-          {
-            id: "t1",
-            title: "Remove Cabinets",
-            description: "Carefully remove existing cabinets",
-            status: "planning",
-            invoices: [
-              {
-                id: "i1",
-                supplier: {
-                  name: "Demo Crew Inc",
-                  email: "demo@example.com",
-                  phone: "555-0123",
-                },
-                amount: 2500,
-                dueDate: new Date("2024-04-15"),
-                status: "paid",
-                invoiceNumber: "INV-3342",
-              },
-            ],
-          },
-          {
-            id: "t2",
-            title: "Dispose of Materials",
-            description: "Haul away old cabinets and debris",
-            status: "planning",
-            invoices: [
-              {
-                id: "i2",
-                supplier: {
-                  name: "Hauling Bros",
-                  email: "hauling@example.com",
-                },
-                amount: 800,
-                dueDate: new Date("2024-04-16"),
-                status: "draft",
-                invoiceNumber: "INV-0231",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        id: "p2",
-        title: "Installation",
-        description: "Install new cabinets and appliances",
-        startDate: new Date("2024-04-08"),
-        endDate: new Date("2024-04-21"),
-        status: "planning",
-        tasks: [
-          {
-            id: "t3",
-            title: "Install Cabinets",
-            description: "Install new custom cabinets",
-            status: "planning",
-            invoices: [
-              {
-                id: "i3",
-                supplier: {
-                  name: "Cabinet Pro LLC",
-                  email: "cabinets@example.com",
-                },
-                amount: 12000,
-                dueDate: new Date("2024-04-30"),
-                status: "draft",
-                invoiceNumber: "20249333",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-];
-
 const ProjectDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(
-    mockProjects.find((p) => p.id === id) || null
+    getProject(id || "") || null
   );
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -482,105 +361,104 @@ const ProjectDetails: React.FC = () => {
   };
 
   return (
-    <Container className="py-5">
-      {/* Header Section */}
-      <div className="pb-3 mb-4 border-bottom">
-        <div className="d-flex align-items-center justify-content-between">
-          <div>
-            <h1 className="h2 mb-0">{project.title}</h1>
-            <p className="text-muted mb-0">
-              {format(new Date(project.startDate), "MMM d, yyyy")} -{" "}
-              {format(new Date(project.endDate), "MMM d, yyyy")}
-            </p>
-          </div>
-          <div>
-            <Button
-              variant="outline-primary"
-              className="me-2"
-              onClick={() => setShowEditModal(true)}
-            >
-              <i className="bi bi-pencil me-2"></i>
-              Edit Project
-            </Button>
-            <Button
-              variant="outline-danger"
-              onClick={() => setShowDeleteModal(true)}
-            >
-              <i className="bi bi-trash me-2"></i>
-              Delete Project
-            </Button>
-          </div>
+    <div className="py-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div className="d-flex align-items-center">
+          <h2 className="mb-0 me-4">{project.title}</h2>
+          <Badge bg={getStatusVariant(project.status)}>
+            {project.status.replace("-", " ")}
+          </Badge>
+        </div>
+        <div>
+          <Button
+            variant="link"
+            className="text-primary me-2"
+            onClick={() => setShowEditModal(true)}
+          >
+            <i className="bi bi-pencil-square fs-5"></i>
+          </Button>
+          <Button
+            variant="link"
+            className="text-danger"
+            onClick={() => setShowDeleteModal(true)}
+          >
+            <i className="bi bi-trash fs-5"></i>
+          </Button>
         </div>
       </div>
 
-      {/* Overview Section */}
-      <Row className="mb-4 g-4">
-        <Col lg={8}>
-          <div className="bg-body-tertiary p-4 rounded">
-            <h4 className="border-bottom pb-2 mb-3">Project Overview</h4>
-            <p className="lead">{project.description}</p>
-            <Row className="mt-4">
-              <Col md={6}>
-                <div className="mb-3">
-                  <h6 className="text-muted mb-2">Status</h6>
-                  <Badge bg={getStatusVariant(project.status)} className="fs-6">
-                    {project.status.replace("-", " ")}
-                  </Badge>
-                </div>
-              </Col>
-              <Col md={6}>
-                <div>
-                  <h6 className="text-muted mb-2">Location</h6>
-                  <p className="mb-2">{project.location.address}</p>
-                  <div
-                    className="bg-light rounded"
-                    style={{
-                      height: "200px",
-                      backgroundImage:
-                        'url("https://via.placeholder.com/800x600/e9ecef/495057?text=Map+Placeholder")',
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }}
-                  />
-                </div>
-              </Col>
-            </Row>
-          </div>
-        </Col>
-
-        <Col lg={4}>
-          <div className="bg-body-tertiary p-4 rounded">
-            <h4 className="border-bottom pb-2 mb-3">Project Summary</h4>
-            <div className="mb-3">
-              <h6 className="text-muted mb-2">Phases</h6>
-              <h3 className="mb-0">{project.phases.length}</h3>
-            </div>
-            <div className="mb-3">
-              <h6 className="text-muted mb-2">Tasks</h6>
-              <h3 className="mb-0">
-                {project.phases.reduce(
-                  (sum, phase) => sum + phase.tasks.length,
-                  0
-                )}
-              </h3>
-            </div>
-            <div>
-              <h6 className="text-muted mb-2">Budget</h6>
-              <div className="fs-5">
-                <div className="mb-1">
-                  Total: ${projectSummary.total.toLocaleString()}
-                </div>
-                <div className="text-success mb-1">
-                  Paid: ${projectSummary.paid.toLocaleString()}
-                </div>
-                <div className="text-danger">
-                  Unpaid: ${projectSummary.unpaid.toLocaleString()}
+      <Card className="mb-4">
+        <Card.Body>
+          <Row>
+            <Col md={8}>
+              <div className="mb-4">
+                <h5 className="text-muted mb-3">Description</h5>
+                <p className="mb-0">{project.description}</p>
+              </div>
+              <div>
+                <h5 className="text-muted mb-3">Location</h5>
+                <p className="mb-2">{project.location.address}</p>
+                <div
+                  className="bg-light rounded"
+                  style={{
+                    height: "200px",
+                    backgroundImage:
+                      'url("https://via.placeholder.com/800x600/e9ecef/495057?text=Map+Placeholder")',
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                />
+              </div>
+            </Col>
+            <Col md={4} className="border-start">
+              <div className="mb-4">
+                <h5 className="text-muted mb-3">Timeline</h5>
+                <div className="d-flex align-items-center mb-2">
+                  <i className="bi bi-calendar me-2"></i>
+                  <span>
+                    {format(new Date(project.startDate), "MMM d, yyyy")} -{" "}
+                    {format(new Date(project.endDate), "MMM d, yyyy")}
+                  </span>
                 </div>
               </div>
-            </div>
-          </div>
-        </Col>
-      </Row>
+
+              <div className="mb-4">
+                <h5 className="text-muted mb-3">Progress</h5>
+                <div className="d-flex align-items-center mb-2">
+                  <i className="bi bi-list-task me-2"></i>
+                  <span>{project.phases.length} Phases</span>
+                </div>
+                <div className="d-flex align-items-center">
+                  <i className="bi bi-people me-2"></i>
+                  <span>
+                    {project.sharedWith.length > 0
+                      ? `${project.sharedWith.length} Team Members`
+                      : "No team members"}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <h5 className="text-muted mb-3">Budget</h5>
+                <div className="ms-1">
+                  <div className="mb-2">
+                    <strong>Total:</strong> $
+                    {projectSummary.total.toLocaleString()}
+                  </div>
+                  <div className="mb-2 text-success">
+                    <strong>Paid:</strong> $
+                    {projectSummary.paid.toLocaleString()}
+                  </div>
+                  <div className="text-danger">
+                    <strong>Unpaid:</strong> $
+                    {projectSummary.unpaid.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
 
       {/* Photo Gallery */}
       <Row className="mb-4">
@@ -915,7 +793,7 @@ const ProjectDetails: React.FC = () => {
           isEditing
         />
       )}
-    </Container>
+    </div>
   );
 };
 

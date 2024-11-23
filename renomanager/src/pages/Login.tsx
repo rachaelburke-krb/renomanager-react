@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { findUser } from "../data/mockUsers";
+import Logo from "../components/shared/Logo";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -42,8 +43,8 @@ const Login: React.FC = () => {
         <Row className="justify-content-center">
           <Col xs={11} sm={10} md={9} lg={8} xl={7}>
             <div className="text-center mb-5">
-              <h1 className="display-4 fw-bold">RenoManager</h1>
-              <p className="text-muted fs-4">Manage your renovation projects</p>
+              <Logo size="lg" className="justify-content-center mb-3" />
+              <p className="text-muted fs-5">Manage your renovation projects</p>
             </div>
 
             <Card className="shadow-sm border-0">

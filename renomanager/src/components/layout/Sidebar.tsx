@@ -1,6 +1,7 @@
 import React from "react";
 import { Nav } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import Logo from "../shared/Logo";
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -17,12 +18,9 @@ const Sidebar: React.FC = () => {
       className="d-flex flex-column flex-shrink-0 p-3 bg-light sidebar"
       style={{ width: "280px" }}
     >
-      <a
-        href="/"
-        className="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none"
-      >
-        <span className="fs-4">RenoManager</span>
-      </a>
+      <Link to="/dashboard" className="text-decoration-none text-dark">
+        <Logo size="lg" />
+      </Link>
       <hr />
       <Nav className="flex-column mb-auto">
         <Nav.Item>
@@ -64,14 +62,9 @@ const Sidebar: React.FC = () => {
         </a>
         <ul className="dropdown-menu text-small shadow">
           <li>
-            <a className="dropdown-item" href="#">
-              Settings
-            </a>
-          </li>
-          <li>
-            <a className="dropdown-item" href="#">
-              Profile
-            </a>
+            <Link to="/profile" className="dropdown-item">
+              Profile Settings
+            </Link>
           </li>
           <li>
             <hr className="dropdown-divider" />
@@ -81,7 +74,6 @@ const Sidebar: React.FC = () => {
               className="dropdown-item text-danger"
               onClick={handleLogout}
             >
-              <i className="bi bi-box-arrow-right me-2"></i>
               Sign out
             </button>
           </li>
